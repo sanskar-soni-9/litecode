@@ -1,0 +1,37 @@
+.navBar {
+  display: flex;
+  padding: 12px 3vw;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+
+  a {
+    display: flex;
+    align-items: center;
+    color: inherit;
+    
+    img {
+      width: 40px;
+      height: 40px;
+    }
+    
+    p {
+      
+      &:hover {
+        &::after {
+          width: 100%;
+        }
+      }
+
+      &::after {
+        content: '';
+        display: block;
+        width: 0;
+        height: 2px;
+        background-color: #fff;
+        transition: width 0.3s;
+      }
+    }
+  }
+}
