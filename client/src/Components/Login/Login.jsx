@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { backendUrl } from '../../constants'
+import Spinner from '../Spinner/Spinner'
 import './Login.scss'
 
 const Login = () => {
@@ -7,9 +8,11 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setIsLoading(true);
     const res = await fetch(`${backendUrl}/login`, {
       method: 'POST',
       headers: {
@@ -20,12 +23,14 @@ const Login = () => {
     const data = await res.json();
     console.log(data);
     if(data.token) {
+      setIsLoading(false);
       setIsLoggedIn(true);
       localStorage.setItem('token', data.token);
       setTimeout(() => {
         window.location.href = '/';
       }, 2000);
     } else {
+      setIsLoading(false);
       setError(data.msg);
     }
   }
@@ -49,7 +54,7 @@ const Login = () => {
     )
   }
 
-  return (
+  return !isLoading ? (
     <div className='login-container'>
       <div className='login-form-wrapper'>
         <h1>Login</h1>
@@ -65,6 +70,10 @@ const Login = () => {
           <input type='submit' />
         </form>
       </div>
+    </div>
+  ) : (
+    <div className='login-container'>
+      <Spinner size='40' />
     </div>
   )
 }
