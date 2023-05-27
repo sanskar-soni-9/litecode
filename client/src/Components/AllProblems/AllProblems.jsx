@@ -2,19 +2,28 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { backendUrl } from '../../constants'
 import './AllProblems.scss'
+import Spinner from '../Spinner/Spinner'
 
 const AllProblems = () => {
   const [problems, setProblems] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   useEffect(() => {
     (async function () {
       const res = await fetch(`${backendUrl}/problems`);
-      const data = await res.json();
-      setProblems(data);
+      res.json().then(data => {
+        setIsLoading(false);
+        setProblems(data);
+      })
+      .catch(err => {
+        setIsLoading(false);
+        setError(err.msg);
+      });
     })();
   }, []);
 
-  return (
+  return !isLoading ? (
     <div className='all-problems-container'>
       <table>
         <thead>
@@ -38,6 +47,10 @@ const AllProblems = () => {
           }
         </tbody>
       </table>
+    </div>
+  ) : (
+    <div className='spinner-container'>
+      <Spinner size='40' />
     </div>
   )
 }

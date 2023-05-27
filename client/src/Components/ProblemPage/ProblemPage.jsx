@@ -1,22 +1,26 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { backendUrl } from '../../constants'
+import Spinner from '../Spinner/Spinner'
 import './ProblemPage.scss'
 
 const ProblemPage = () => {
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
   const [submission, setSubmission] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     (async function() {
       const res = await  fetch(`${backendUrl}/problems/${id}`);
       const { problem } = await res.json();
       setProblem(problem);
+      setIsLoading(false);
     })();
   }, [])
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     const res = await fetch(`${backendUrl}/submission`, {
       method: 'POST',
       headers: {
@@ -27,9 +31,10 @@ const ProblemPage = () => {
     });
     const data = await res.json();
     console.log(data);
+    setIsLoading(false);
   }
 
-  return (
+  return !isLoading ? (
     <div className='problemPage-container'>
       {
         problem ? (
@@ -49,6 +54,10 @@ const ProblemPage = () => {
           </div>
         ) : ''
       }
+    </div>
+  ) : (
+    <div className='spinner-container'>
+      <Spinner size='40' />
     </div>
   )
 }
