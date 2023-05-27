@@ -16,7 +16,6 @@ const ProblemPage = () => {
   }, [])
 
   const handleSubmit = async () => {
-    const code = document.querySelector('textarea').value;
     const res = await fetch(`${backendUrl}/submission`, {
       method: 'POST',
       headers: {
