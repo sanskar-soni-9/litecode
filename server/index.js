@@ -21,7 +21,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use((_, res, next) => {
+app.use(( req, res, next) => {
   const allowedOrigins = ['http://localhost:5173', 'https://litecode-smoky.vercel.app', 'https://litecode-sanskar-soni-9.vercel.app', 'https://litecode-git-main-sanskar-soni-9.vercel.app'];
   const { origin } = req.headers;
   if (allowedOrigins.includes(origin)) {
