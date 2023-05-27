@@ -1,0 +1,45 @@
+.problemPage-container {
+  height: 85vh;
+  
+  .problem-input-wrapper {
+    padding: 0 1%;
+    display: flex;
+    height: 100%;
+    color: #fff;
+    
+    .problem-container {
+      width: 100%;
+      padding-right: 0.5%;
+
+      p {
+        font-style: italic;
+        margin : 0;
+        font-size: 0.9rem;
+      }
+    }
+
+    .input-container {
+      width: 100%;
+      padding-left: 0.5%;
+       
+      textarea {
+        display: block;
+        resize: none;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+      }
+
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        background-color: #2cbb5d;
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+  }
+}

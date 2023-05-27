@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { backendUrl } from '../../constants'
+import './ProblemPage.scss'
 
 const ProblemPage = () => {
   const { id } = useParams();
@@ -32,7 +33,7 @@ const ProblemPage = () => {
     <div className='problemPage-container'>
       {
         problem ? (
-          <>
+          <div className='problem-input-wrapper'>
             <div className='problem-container'>
               <h1>{problem?.title}</h1>
               <h2>Description</h2>
@@ -42,10 +43,10 @@ const ProblemPage = () => {
             </div>
             <div className='input-container'>
               <h1>Code Here</h1>
-              <textarea autoFocus value={submission} onChange={e => setSubmission(e.target.value)} />
+              <textarea style={{width: '100%', height: '75%'}} autoFocus value={submission} onChange={e => setSubmission(e.target.value)} />
               <button onClick={handleSubmit}>Submit</button>
             </div>
-          </>
+          </div>
         ) : ''
       }
     </div>
