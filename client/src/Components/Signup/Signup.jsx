@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { backendUrl } from '../../constants'
+import './Signup.scss'
 
 const Signup = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [status, setStatus] = useState(false)
+  const [isSignedUp, setIsSignedUp] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,30 +18,53 @@ const Signup = () => {
       body: JSON.stringify({ email, password })
     })
     const data = await res.json();
-    if(data.token) setStatus(true);
-    localStorage.setItem('token', data.token);
+    console.log(data);
+    if (data.token) {
+      setIsSignedUp(true);
+      localStorage.setItem('token', data.token);
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    } else {
+      setError(data.msg);
+    }
+  }
+
+  if(error || isSignedUp) {
+    return (
+      <div className='signup-container'>
+      {
+        isSignedUp ? (
+          <div className='signup-status-container success'>
+            <h1>Signup successful</h1>
+            <p>Redirecting...</p>
+          </div> ) : (
+          <div className='signup-status-container error'>
+            <h1>Signup failed</h1>
+            <p>{error}</p>
+          </div>
+        )
+      }
+      </div>
+    )
   }
 
   return (
     <div className='signup-container'>
-      {
-        status ? <p>Signup successful</p> : (
-          <>
-            <h1>Signup</h1>
-            <form onSubmit={e => handleSubmit(e)}>
-              <label>
-                Email:
-                <input type='email' placeholder='example@gmail.com' value={email} onChange={e => setEmail(e.target.value)} required />
-              </label>
-              <label>
-                Password:
-                <input type='password' placeholder='password' value={password} onChange={e => setPassword(e.target.value)} required />
-              </label>
-              <input type='submit' />
-            </form>
-          </>
-        )
-      }
+      <div className='signup-form-wrapper'>
+        <h1>Signup</h1>
+        <form onSubmit={e => handleSubmit(e)}>
+          <label>
+            Email
+            <input type='email' placeholder='example@gmail.com' value={email} onChange={e => setEmail(e.target.value)} required />
+          </label>
+          <label>
+            Password
+            <input type='password' placeholder='password' value={password} onChange={e => setPassword(e.target.value)} required />
+          </label>
+          <input type='submit' />
+        </form>
+      </div>
     </div>
   )
 }
