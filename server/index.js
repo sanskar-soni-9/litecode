@@ -22,7 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use((_, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+  const allowedOrigins = ['http://localhost:5173', 'https://litecode-smoky.vercel.app', 'https://litecode-sanskar-soni-9.vercel.app', 'https://litecode-git-main-sanskar-soni-9.vercel.app'];
+  const { origin } = req.headers;
+  if (allowedOrigins.includes(origin)) {
+       res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   next();
