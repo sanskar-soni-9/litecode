@@ -4,16 +4,31 @@ import { Link } from 'react-router-dom'
 
 import './Navbar.scss'
 
-const Navbar = () => {
+const Navbar = ({ isUser, setIsUser }) => {
   return (
     <div className='navBar'>
-      <Link to='/'>
-        <img src={logo} alt='logo' />
-        <p>LiteCode</p>
-      </Link>
-      <Link to='/problemset/all'><p>Problems</p></Link>
-      <Link to='signup'><p>Sign Up</p></Link>
-      <Link to='login'><p>Log In</p></Link>
+      <div>
+        <Link to='/'>
+          <img src={logo} alt='logo' />
+          <p className='brand'>LiteCode</p>
+        </Link>
+      </div>
+      <div className='navLinks'>
+        <Link to='/problemset/all'><p className='links'>Problems</p></Link>
+        {
+          !isUser ? (
+            <>
+              <Link to='signup'><p className='links'>Sign Up</p></Link>
+              <Link to='login'><p className='links'>Log In</p></Link>
+            </>
+          ) : (
+            <Link to='/' className='logout-btn' onClick={() => {
+              localStorage.removeItem('token')
+              setIsUser(false)
+            }}><p>Log Out</p></Link>
+          )
+        }
+      </div>
     </div>
   )
 }

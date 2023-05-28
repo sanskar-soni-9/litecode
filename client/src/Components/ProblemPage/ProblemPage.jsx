@@ -4,7 +4,7 @@ import { backendUrl } from '../../constants'
 import Spinner from '../Spinner/Spinner'
 import './ProblemPage.scss'
 
-const ProblemPage = () => {
+const ProblemPage = ({ isUser }) => {
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
   const [submission, setSubmission] = useState('');
@@ -33,6 +33,14 @@ const ProblemPage = () => {
     console.log(data);
     setIsLoading(false);
   }
+
+  if(!isUser) return (
+    <div className='problemPage-container'>
+      <div className='message-container'>
+        <h1>Please Login to view the problem</h1>
+      </div>
+    </div>
+  )
 
   return !isLoading ? (
     <div className='problemPage-container'>
