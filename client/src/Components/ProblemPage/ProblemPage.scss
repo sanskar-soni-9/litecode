@@ -7,12 +7,25 @@
 
 .problemPage-container {
   height: 85vh;
+
+  .message-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #fff;
+    font-size: 0.9rem;
+  }
   
   .problem-input-wrapper {
     padding: 0 1%;
     display: flex;
     height: 100%;
     color: #fff;
+
+    @media screen and (max-width: 750px) {
+      flex-direction: column;
+    }
     
     .problem-container {
       width: 100%;

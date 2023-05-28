@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useState } from 'react'
 import Navbar from './Constants/Navbar/Navbar'
 import HomePage from './Components/HomePage/HomePage'
 import Signup from './Components/Signup/Signup'
@@ -9,15 +10,17 @@ import './App.css'
 
 
 function App() {
+  const [isUser, setIsUser] = useState(!!localStorage.getItem('token'))
+
   return (
     <Router>
-      <Navbar />
+      <Navbar isUser={isUser} setIsUser={setIsUser} />
       <Routes>
         <Route path='/' element={<HomePage />} />
         <Route path='/signup' element={<Signup />} />
         <Route path='/login' element={<Login />} />
         <Route path='/problemset/all' element={<AllProblems />} />
-        <Route path='/problem/:id' element={<ProblemPage />} />
+        <Route path='/problem/:id' element={<ProblemPage isUser={isUser} />} />
       </Routes>
     </Router>
   )

@@ -16,7 +16,7 @@
       height: 40px;
     }
     
-    p {
+    p.links {
       
       &:hover {
         &::after {
@@ -31,6 +31,36 @@
         height: 2px;
         background-color: #fff;
         transition: width 0.3s;
+      }
+    }
+
+    p.brand {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+
+      &:hover {
+        color: #ffffffcc;
+      }
+    }
+  }
+
+  .navLinks {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+
+    .logout-btn {
+      background-color: #fff;
+      color: #000;
+      padding: 5px 10px;
+      font-weight: 600;
+      border-radius: 5px;
+      margin-left: 20px;
+      
+      p {
+        margin: 0;
       }
     }
   }
