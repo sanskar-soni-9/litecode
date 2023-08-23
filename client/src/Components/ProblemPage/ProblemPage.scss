@@ -41,6 +41,10 @@
     .input-container {
       width: 100%;
       padding-left: 0.5%;
+
+      .result {
+        white-space: pre-line;
+      }
        
       textarea {
         display: block;

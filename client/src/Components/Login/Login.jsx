@@ -4,8 +4,8 @@ import Spinner from '../Spinner/Spinner'
 import './Login.scss'
 
 const Login = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('example@gmail.com')
+  const [password, setPassword] = useState('password')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
