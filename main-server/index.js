@@ -1,4 +1,4 @@
-const { SECRET } = require("./constants");
+const { SECRET, PORT } = require("./constants");
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { v4: uuid } = require("uuid");
@@ -10,13 +10,11 @@ const {
   checkUser,
   getProblem,
   addSubmission,
-  getSubmissions,
 } = require("./connection");
 const { auth } = require("./middleware");
 const { publishToQueue } = require("./publishermq");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -99,7 +97,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/problems/:id", async (req, res) => {
+app.get("/problem/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const problem = await getProblem(id);
@@ -156,26 +154,6 @@ app.post("/submission", auth, async (req, res) => {
     res.status(500).json({
       err: true,
       msg: "An error occured while adding submission.",
-    });
-  }
-});
-
-app.get("/submissions/:problemId", auth, async (req, res) => {
-  try {
-    const { problemId } = req.params;
-    const submissions = await getSubmissions(problemId);
-    if (!submissions) {
-      return res.status(500).json({
-        err: true,
-        msg: "An error occured while fetching submissions.",
-      });
-    }
-    res.json({ submissions });
-  } catch (error) {
-    console.error("Error occored while fetching submissions.", error);
-    res.status(500).json({
-      err: true,
-      msg: "An error occured while fetching submissions.",
     });
   }
 });

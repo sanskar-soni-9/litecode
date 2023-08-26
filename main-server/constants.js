@@ -1,5 +1,6 @@
 const SECRET = "liteCode";
 const queueName = "litecode_submissions";
+const PORT = process.env.PORT || 3000;
 
 /** For Development **/
 // const amqpUrl = "amqp://localhost";
@@ -13,9 +14,9 @@ const queueName = "litecode_submissions";
 
 /** For Production **/
 const credentials = {
-  connectionString: process.env.DB_CONNECTION_STRING,
+  connectionString: process.env.LITECODE_DB,
   ssl: true
 };
-const amqpUrl = process.env.RABBITMQ_URL;
+const amqpUrl = process.env.LITECODE_MQ;
 
-module.exports = { SECRET, credentials, queueName, amqpUrl };
+module.exports = { SECRET, credentials, queueName, amqpUrl, PORT };

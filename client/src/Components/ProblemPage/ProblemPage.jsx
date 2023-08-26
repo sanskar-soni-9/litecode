@@ -13,7 +13,7 @@ const ProblemPage = ({ isUser }) => {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch(`${backendUrl}/problems/${id}`);
+      const res = await fetch(`${backendUrl}/problem/${id}`);
       const { problem } = await res.json();
       setProblem(problem);
       setIsLoading(false);
