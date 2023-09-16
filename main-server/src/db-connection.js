@@ -8,11 +8,11 @@ const getProblems = async () => {
     const problems = await pool.query("SELECT * FROM PROBLEMS");
     return problems.rowCount
       ? problems.rows.map(({ id, difficulty, acceptance, title }) => ({
-          id,
-          difficulty,
-          acceptance,
-          title,
-        }))
+        id,
+        difficulty,
+        acceptance,
+        title,
+      }))
       : false;
   } catch (error) {
     console.error("Error occurred while fetching problems:", error);
@@ -52,11 +52,11 @@ const checkUser = async (id, email) => {
   }
 };
 
-const addUser = async (id, email, password) => {
+const addUser = async (id, email, salt, hashedPassword) => {
   try {
     const { rowCount } = await pool.query(
-      `INSERT INTO USERS(id, email, password) VALUES($1, $2, $3)`,
-      [id, email, password],
+      `INSERT INTO USERS(id, email, salt, password_hash) VALUES($1, $2, $3, $4)`,
+      [id, email, salt, hashedPassword],
     );
     return !!rowCount;
   } catch (error) {
@@ -65,13 +65,13 @@ const addUser = async (id, email, password) => {
   }
 };
 
-const validateUser = async (email, password) => {
+const validateUser = async (email) => {
   try {
     const { rowCount, rows } = await pool.query(
-      `SELECT id FROM USERS WHERE email = $1 AND password = $2`,
-      [email, password],
+      `SELECT id, password_hash FROM USERS WHERE email = $1`,
+      [email],
     );
-    return rowCount ? rows[0]?.id : false;
+    return rowCount ? rows[0] : false;
   } catch (error) {
     console.error(
       `Error occurred while validating user with email ${email}:`,

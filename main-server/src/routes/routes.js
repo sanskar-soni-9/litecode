@@ -1,5 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const { saltRounds } = require("../constants");
 
 const { SECRET } = require("../constants");
 const { v4: uuid } = require("uuid");
@@ -71,14 +73,19 @@ router.post("/signup", async (req, res) => {
   try {
     const userID = uuid();
     const { email, password } = req.body;
+
     const isUser = await checkUser(null, email);
     if (isUser) {
       return res.status(403).json({ err: true, msg: "User already exists!" });
     }
-    const result = await addUser(userID, email, password);
+
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPass = await bcrypt.hash(password, salt);
+    const result = await addUser(userID, email, salt, hashedPass);
     if (!result) {
       return res.status(503).json({ err: true, msg: "User signup failed." });
     }
+
     const token = jwt.sign({ userID }, SECRET);
     res.status(201).json({ msg: "User signed up.", token });
   } catch (error) {
@@ -92,15 +99,19 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const isUser = await checkUser(null, email);
     if (!isUser) {
       return res.status(404).json({ err: true, msg: "User doesn't exist." });
     }
-    const userID = await validateUser(email, password);
-    if (!userID) {
+
+    const userCreds = await validateUser(email);
+    const isValidUser = await bcrypt.compare(password, userCreds.password_hash);
+    if (!isValidUser) {
       return res.status(401).json({ msg: "Invalid password." });
     }
-    const token = jwt.sign({ userID }, SECRET);
+
+    const token = jwt.sign({ userID: userCreds.id }, SECRET);
     res.status(200).json({ msg: "User logged in.", token });
   } catch (error) {
     console.error("Error occurred while logging in:", error);

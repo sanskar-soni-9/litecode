@@ -2,6 +2,7 @@ require("dotenv").config();
 const SECRET = process.env.LITECODE_SECRET;
 const queueName = "litecode_submissions";
 const PORT = process.env.PORT || 3000;
+const saltRounds = 10;
 
 /** For Development **/
 // const amqpUrl = "amqp://localhost";
@@ -20,4 +21,4 @@ const credentials = {
 };
 const amqpUrl = process.env.LITECODE_MQ;
 
-module.exports = { SECRET, credentials, queueName, amqpUrl, PORT };
+module.exports = { SECRET, saltRounds, credentials, queueName, amqpUrl, PORT };
