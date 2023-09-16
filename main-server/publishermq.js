@@ -29,13 +29,9 @@ const publishToQueue = async (submission) => {
 
       channel.consume(callbackQueue.queue, async (msg) => {
         if (!msg) return;
-        const result = await JSON.parse(msg.content.toString());
         channel.ack(msg);
-
-        if (result) {
-          await channel.deleteQueue(callbackQueue.queue);
-          res({ ...result, res: result.res.trim() });
-        }
+        channel.deleteQueue(callbackQueue.queue);
+        res(JSON.parse(msg.content.toString()));
       });
     } catch (err) {
       rej(err);

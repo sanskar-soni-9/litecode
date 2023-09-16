@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nodejs-consumer-service-account
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodejs-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nodejs-consumer
+  template:
+    metadata:
+      labels:
+        app: nodejs-consumer
+    spec:
+      serviceAccountName: nodejs-consumer-service-account
+      containers:
+      - name: consumer
+        image: immortal9/litecode-executor:v1
+        imagePullPolicy: Always
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: create-job-role
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "pods", "pods/log",  "pods/status" ]
+    verbs: [ "get", "create", "delete" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: create-job-rolebinding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: nodejs-consumer-service-account
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: create-job-role
+  apiGroup: rbac.authorization.k8s.io
