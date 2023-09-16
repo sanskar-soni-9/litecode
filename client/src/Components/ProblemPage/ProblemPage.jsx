@@ -12,12 +12,20 @@ const ProblemPage = ({ isUser }) => {
   const [result, setResult] = useState("");
 
   useEffect(() => {
-    (async () => {
-      const res = await fetch(`${backendUrl}/problem/${id}`);
-      const { problem } = await res.json();
-      setProblem(problem);
-      setIsLoading(false);
-    })();
+    isUser &&
+      (async () => {
+        const res = await fetch(`${backendUrl}/problem/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: localStorage.getItem("token"),
+          },
+        });
+
+        const { problem } = await res.json();
+        setProblem(problem);
+        setIsLoading(false);
+      })();
   }, []);
 
   const handleSubmit = async () => {
