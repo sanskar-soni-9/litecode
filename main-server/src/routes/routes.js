@@ -1,8 +1,8 @@
-const { SECRET, PORT } = require("./constants");
 const express = require("express");
 const jwt = require("jsonwebtoken");
+
+const { SECRET } = require("../constants");
 const { v4: uuid } = require("uuid");
-const cors = require("cors");
 const {
   getProblems,
   addUser,
@@ -10,33 +10,13 @@ const {
   checkUser,
   getProblem,
   addSubmission,
-} = require("./connection");
-const { auth } = require("./middleware");
-const { publishToQueue } = require("./publishermq");
+} = require("../db-connection");
+const { auth } = require("../middleware");
+const { publishToQueue } = require("../publishermq");
+const router = express.Router();
 
-const app = express();
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://litecode-smoky.vercel.app",
-      "https://litecode-sanskar-soni-9.vercel.app",
-      "https://litecode-git-main-sanskar-soni-9.vercel.app",
-    ],
-    methods: "GET, POST, PUT",
-    credentials: true,
-  }),
-);
-
-app.get("/", (_, res) => {
-  res.json({ msg: "Hello World." });
-});
-
-app.get("/problems", async (_, res) => {
+// GET Requests
+router.get("/problems", async (_, res) => {
   try {
     const problems = await getProblems();
     if (!problems) {
@@ -55,7 +35,39 @@ app.get("/problems", async (_, res) => {
   }
 });
 
-app.post("/signup", async (req, res) => {
+router.get("/problem/:id", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const problem = await getProblem(id);
+    if (!problem) {
+      return res.status(404).json({ msg: "Problem not found." });
+    }
+    res.json({ problem });
+  } catch (error) {
+    console.error("Error occurred while fetching problem:", error);
+    res.status(500).json({
+      err: true,
+      msg: "An error occurred while fetching the problem.",
+    });
+  }
+});
+
+router.get("/me", auth, async (req, res) => {
+  try {
+    const { userID } = req;
+    const user = await checkUser(userID, null);
+    res.json({ ...user });
+  } catch (error) {
+    console.error("Error occored while getting profile.", error);
+    res.status(500).json({
+      err: true,
+      msg: "An error occured while getting user profile.",
+    });
+  }
+});
+
+// POST Requests
+router.post("/signup", async (req, res) => {
   try {
     const userID = uuid();
     const { email, password } = req.body;
@@ -77,10 +89,9 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password);
     const isUser = await checkUser(null, email);
     if (!isUser) {
       return res.status(404).json({ err: true, msg: "User doesn't exist." });
@@ -97,38 +108,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/problem/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const problem = await getProblem(id);
-    if (!problem) {
-      return res.status(404).json({ msg: "Problem not found." });
-    }
-    res.json({ problem });
-  } catch (error) {
-    console.error("Error occurred while fetching problem:", error);
-    res.status(500).json({
-      err: true,
-      msg: "An error occurred while fetching the problem.",
-    });
-  }
-});
-
-app.get("/me", auth, async (req, res) => {
-  try {
-    const { userID } = req;
-    const user = await checkUser(userID, null);
-    res.json({ ...user });
-  } catch (error) {
-    console.error("Error occored while getting profile.", error);
-    res.status(500).json({
-      err: true,
-      msg: "An error occured while getting user profile.",
-    });
-  }
-});
-
-app.post("/submission", auth, async (req, res) => {
+router.post("/submission", auth, async (req, res) => {
   try {
     const { problemID, submission } = req.body;
 
@@ -148,7 +128,10 @@ app.post("/submission", auth, async (req, res) => {
         msg: "An error occured while adding submission.",
       });
     }
-    return res.json({ status, response: (result.success ? result.res : result.err) });
+    return res.json({
+      status,
+      response: result.success ? result.res : result.err,
+    });
   } catch (error) {
     console.error("Error occored while adding submission.", error);
     res.status(500).json({
@@ -158,6 +141,4 @@ app.post("/submission", auth, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server started running on port ${PORT}.`);
-});
+module.exports = router;

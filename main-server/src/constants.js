@@ -1,4 +1,5 @@
-const SECRET = "liteCode";
+require("dotenv").config();
+const SECRET = process.env.LITECODE_SECRET;
 const queueName = "litecode_submissions";
 const PORT = process.env.PORT || 3000;
 
