@@ -1,15 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { saltRounds } = require("../constants");
-
-const { SECRET } = require("../constants");
 const { v4: uuid } = require("uuid");
+
+const { SECRET, saltRounds } = require("../constants");
 const {
   getProblems,
   addUser,
-  validateUser,
-  checkUser,
+  validateUserExists,
   getProblem,
   addSubmission,
 } = require("../db-connection");
@@ -54,27 +52,13 @@ router.get("/problem/:id", auth, async (req, res) => {
   }
 });
 
-router.get("/me", auth, async (req, res) => {
-  try {
-    const { userID } = req;
-    const user = await checkUser(userID, null);
-    res.json({ ...user });
-  } catch (error) {
-    console.error("Error occored while getting profile.", error);
-    res.status(500).json({
-      err: true,
-      msg: "An error occured while getting user profile.",
-    });
-  }
-});
-
 // POST Requests
 router.post("/signup", async (req, res) => {
   try {
     const userID = uuid();
     const { email, password } = req.body;
 
-    const isUser = await checkUser(null, email);
+    const isUser = await validateUserExists(email);
     if (isUser) {
       return res.status(403).json({ err: true, msg: "User already exists!" });
     }
@@ -100,12 +84,11 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const isUser = await checkUser(null, email);
-    if (!isUser) {
+    const userCreds = await validateUserExists(email);
+    if (!userCreds) {
       return res.status(404).json({ err: true, msg: "User doesn't exist." });
     }
 
-    const userCreds = await validateUser(email);
     const isValidUser = await bcrypt.compare(password, userCreds.password_hash);
     if (!isValidUser) {
       return res.status(401).json({ msg: "Invalid password." });

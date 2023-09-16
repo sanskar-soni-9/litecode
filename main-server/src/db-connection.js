@@ -36,22 +36,6 @@ const getProblem = async (id) => {
   }
 };
 
-const checkUser = async (id, email) => {
-  try {
-    const { rows } = await pool.query(
-      `SELECT email, id FROM USERS WHERE email = $1 OR id = $2`,
-      [email, id],
-    );
-    return rows.length ? { email: rows[0].email, id: rows[0].id } : false;
-  } catch (error) {
-    console.error(
-      `Error occurred while checking user with email ${email}:`,
-      error,
-    );
-    throw error;
-  }
-};
-
 const addUser = async (id, email, salt, hashedPassword) => {
   try {
     const { rowCount } = await pool.query(
@@ -65,7 +49,7 @@ const addUser = async (id, email, salt, hashedPassword) => {
   }
 };
 
-const validateUser = async (email) => {
+const validateUserExists = async (email) => {
   try {
     const { rowCount, rows } = await pool.query(
       `SELECT id, password_hash FROM USERS WHERE email = $1`,
@@ -116,8 +100,7 @@ const getSubmissions = async (problemID) => {
 module.exports = {
   getProblems,
   addUser,
-  validateUser,
-  checkUser,
+  validateUserExists,
   getProblem,
   addSubmission,
   getSubmissions,
