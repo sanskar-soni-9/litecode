@@ -11,7 +11,7 @@ const connectToRabbitMQ = async () => {
   }
 };
 
-const publishToQueue = async (submission) => {
+const publishToQueue = async (submission, input) => {
   return new Promise(async (res, rej) => {
     try {
       await connectToRabbitMQ();
@@ -22,10 +22,14 @@ const publishToQueue = async (submission) => {
         exclusive: true,
       });
 
-      channel.sendToQueue(queueName, Buffer.from(submission), {
-        persistent: true,
-        replyTo: callbackQueue.queue,
-      });
+      channel.sendToQueue(
+        queueName,
+        Buffer.from(JSON.stringify({ code: submission, input })),
+        {
+          persistent: true,
+          replyTo: callbackQueue.queue,
+        },
+      );
 
       channel.consume(callbackQueue.queue, async (msg) => {
         if (!msg) return;

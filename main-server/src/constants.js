@@ -1,10 +1,10 @@
 require("dotenv").config();
 const SECRET = process.env.LITECODE_SECRET;
-const queueName = "litecode_submissions";
 const PORT = process.env.PORT || 3000;
 const saltRounds = 10;
 
 /** For Development **/
+// const queueName = "litecode_test";
 // const amqpUrl = "amqp://localhost";
 // const credentials = {
 //   host: "localhost",
@@ -15,6 +15,7 @@ const saltRounds = 10;
 // };
 
 /** For Production **/
+const queueName = "litecode_submissions";
 const credentials = {
   connectionString: process.env.LITECODE_DB,
   ssl: true

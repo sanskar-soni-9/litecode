@@ -106,8 +106,15 @@ router.post("/submission", auth, async (req, res) => {
   try {
     const { problemID, submission } = req.body;
 
-    const result = await publishToQueue(submission);
-    const status = result.success ? "AC" : "WA";
+    const result = await publishToQueue(submission, "");
+    if (!result.success) {
+      return res.status(500).json({
+        err: true,
+        msg: "An error occured while executing the code, try to re-run or come back later :(",
+      });
+    }
+
+    const status = "AC";
     const subID = uuid();
     const resp = await addSubmission(
       subID,
