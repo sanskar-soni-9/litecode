@@ -14,8 +14,8 @@ const runConsumer = async () => {
       channel.consume(queueName, async (msg) => {
         console.log("Processing code...");
 
-        const submission = msg.content.toString();
-        const res = await executePythonCode(submission);
+        const submission = await JSON.parse(msg.content.toString());
+        const res = await executePythonCode(submission.code, submission.input);
         console.log("Result: ", res);
 
         channel.sendToQueue(

@@ -2,21 +2,36 @@ const { KubeConfig, CoreV1Api } = require("@kubernetes/client-node");
 
 const namespace = "default";
 const pollingInterval = 500;
-const maxIntervalCount = 5;
+const maxIntervalCount = 4;
 
 const kc = new KubeConfig();
 kc.loadFromCluster();
 
 const coreApi = kc.makeApiClient(CoreV1Api);
 
-const generateRandomPodName = () => {
-  const baseName = "python-execution-pod";
+const generateRandomName = (type) => {
+  const baseName = `python-execution-${type}`;
   const randomSuffix = Math.random().toString(36).substring(7);
   const timestamp = new Date().getTime();
   return `${baseName}-${timestamp}-${randomSuffix}`;
 };
 
-const getPodManifest = (podName, code) => {
+const getConfigMapManifest = (mapName, code) => {
+  return {
+    apiVersion: "v1",
+    kind: "ConfigMap",
+    metadata: {
+      name: mapName,
+    },
+    data: {
+      "script.py": code,
+    },
+  };
+};
+
+const getPodManifest = (podName, mapName, input) => {
+  const command = `echo "${input}" | python /mnt/script.py`;
+
   return {
     apiVersion: "v1",
     kind: "Pod",
@@ -28,10 +43,24 @@ const getPodManifest = (podName, code) => {
         {
           name: "python-container",
           image: "python:3",
-          command: ["python", "-c", code],
-          restartPolicy: "Never",
+          command: ["sh", "-c", command],
+          volumeMounts: [
+            {
+              name: "config-volume",
+              mountPath: "/mnt",
+            },
+          ],
         },
       ],
+      volumes: [
+        {
+          name: "config-volume",
+          configMap: {
+            name: mapName,
+          },
+        },
+      ],
+      restartPolicy: "Never",
     },
   };
 };
@@ -49,45 +78,58 @@ const checkPodContainerTermination = async (podName) => {
 };
 
 const handleExecution = (podName) => {
-  return new Promise(async (resolve) => {
-    let isTerminated = false;
-    let intervalCount = 0;
-
-    while (intervalCount < maxIntervalCount) {
-      isTerminated = await checkPodContainerTermination(podName);
-
-      if (isTerminated) {
-        const logsResponse = await coreApi.readNamespacedPodLog(
-          podName,
-          namespace,
-        );
-        resolve(
-          logsResponse.body
-            ? typeof logsResponse.body === "string"
-              ? logsResponse.body
-              : JSON.stringify(logsResponse.body)
-            : "",
-        );
-        return;
+  return new Promise(async (resolve, reject) => {
+    try {
+      let intervalCount = 0;
+      for (; intervalCount < maxIntervalCount; intervalCount++) {
+        const isTerminated = await checkPodContainerTermination(podName);
+        if (isTerminated) {
+          const logsResponse = await coreApi.readNamespacedPodLog(
+            podName,
+            namespace,
+          );
+          resolve(
+            logsResponse.body
+              ? typeof logsResponse.body === "string"
+                ? logsResponse.body
+                : JSON.stringify(logsResponse.body)
+              : "",
+          );
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollingInterval));
       }
-      intervalCount++;
-      await new Promise((resolve) => setTimeout(resolve, pollingInterval));
+
+      resolve("Time Limit Reached.");
+    } catch (err) {
+      reject("Error Handling Execution: ", err);
     }
-    resolve("Time Limit Reached.");
   });
 };
 
-const executePythonCode = (code) => {
+const executePythonCode = (code, input) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const podName = generateRandomPodName();
-      const podResponse = await coreApi.createNamespacedPod(
+      const mapName = generateRandomName("map");
+      const mapRes = await coreApi.createNamespacedConfigMap(
         namespace,
-        getPodManifest(podName, code),
+        getConfigMapManifest(mapName, code),
       );
+      console.log("configMap created: ", mapRes.body.metadata.name);
+
+      const podName = generateRandomName("pod");
+      const podResponse =
+        mapRes &&
+        (await coreApi.createNamespacedPod(
+          namespace,
+          getPodManifest(podName, mapName, input),
+        ));
       console.log("Pod created:", podResponse.body.metadata.name);
+
       const logs = await handleExecution(podName);
-      logs && (await coreApi.deleteNamespacedPod(podName, namespace));
+      logs &&
+        (await coreApi.deleteNamespacedConfigMap(mapName, namespace)) &&
+        (await coreApi.deleteNamespacedPod(podName, namespace));
       resolve(logs);
     } catch (error) {
       console.error("Error creating Job:", error?.body?.message || error);

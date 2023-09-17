@@ -1,10 +1,11 @@
 require("dotenv").config();
-const queueName = "litecode_submissions";
 
 /** For Production **/
+const queueName = "litecode_submissions";
 const amqpUrl = process.env.LITECODE_MQ;
 
-/** For Development **/
+/** For Development && Testing **/
+// const queueName = "litecode_test";
 // const amqpUrl = "amqp://localhost";
 
 module.exports = { queueName, amqpUrl };
