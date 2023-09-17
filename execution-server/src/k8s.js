@@ -2,7 +2,7 @@ const { KubeConfig, CoreV1Api } = require("@kubernetes/client-node");
 
 const namespace = "default";
 const pollingInterval = 500;
-const maxIntervalCount = 4;
+const maxIntervalCount = 5;
 
 const kc = new KubeConfig();
 kc.loadFromCluster();
