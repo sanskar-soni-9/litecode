@@ -8,8 +8,9 @@ const ProblemPage = ({ isUser }) => {
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
   const [submission, setSubmission] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [result, setResult] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
 
   useEffect(() => {
     isUser &&
@@ -24,12 +25,12 @@ const ProblemPage = ({ isUser }) => {
 
         const { problem } = await res.json();
         setProblem(problem);
-        setIsLoading(false);
+        setSubmission(problem.base_code);
       })();
   }, []);
 
   const handleSubmit = async () => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     const res = await fetch(`${backendUrl}/submission`, {
       method: "POST",
       headers: {
@@ -39,9 +40,9 @@ const ProblemPage = ({ isUser }) => {
       body: JSON.stringify({ problemID: problem.id, submission }),
     });
     const data = await res.json();
-    console.log(data);
+    setIsCorrect(data.status === "AC" ? true : false);
     setResult(data.response);
-    setIsLoading(false);
+    setIsSubmitting(false);
   };
 
   if (!isUser)
@@ -53,35 +54,38 @@ const ProblemPage = ({ isUser }) => {
       </div>
     );
 
-  return !isLoading ? (
+  return problem ? (
     <div className="problemPage-container">
-      {problem ? (
-        <div className="problem-input-wrapper">
-          <div className="problem-container">
-            <h1>{problem?.title}</h1>
-            <h2>Description</h2>
-            <h4>{problem?.description}</h4>
-            <p>Input : {problem.examplein}</p>
-            <p>Output : {problem.exampleout}</p>
-          </div>
-          <div className="input-container">
-            <h1>Code Here</h1>
-            <textarea
-              style={{ width: "100%", height: "75%" }}
-              autoFocus
-              value={submission}
-              onChange={(e) => setSubmission(e.target.value)}
-            />
-            <button onClick={handleSubmit}>Submit</button>
-            {result && <p className="result">{result}</p>}
+      <div className="problem-input-wrapper">
+        <div className="problem-container">
+          <h1>{problem?.title}</h1>
+          <h2>Description</h2>
+          <h4>{problem?.description}</h4>
+          <p>Input : {problem.examplein}</p>
+          <p>Output : {problem.exampleout}</p>
+        </div>
+        <div className="input-container">
+          <h1>Code Here</h1>
+          <textarea
+            style={{ width: "100%", height: "75%" }}
+            value={submission}
+            onChange={(e) => setSubmission(e.target.value)}
+          />
+          <button onClick={handleSubmit}>Submit</button>
+          <div className={`result-container ${isCorrect && "correct"}`}>
+            {isSubmitting ? (
+              <div className="submitting-spinner-container">
+                <Spinner size="40" />
+              </div>
+            ) : (
+              <div className="result">{result}</div>
+            )}
           </div>
         </div>
-      ) : (
-        ""
-      )}
+      </div>
     </div>
   ) : (
-    <div className="spinner-container">
+    <div className="loading-spinner-container">
       <Spinner size="40" />
     </div>
   );
