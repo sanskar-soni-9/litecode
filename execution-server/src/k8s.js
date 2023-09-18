@@ -89,7 +89,7 @@ const handleExecution = (podName) => {
             namespace,
           );
           resolve(
-            logsResponse.body
+            logsResponse.body !== undefined
               ? typeof logsResponse.body === "string"
                 ? logsResponse.body
                 : JSON.stringify(logsResponse.body)
