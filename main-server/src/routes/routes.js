@@ -10,6 +10,7 @@ const {
   validateUserExists,
   getProblem,
   addSubmission,
+  getProblemInputOutputs,
 } = require("../db-connection");
 const { auth } = require("../middleware");
 const { publishToQueue } = require("../publishermq");
@@ -106,7 +107,10 @@ router.post("/submission", auth, async (req, res) => {
   try {
     const { problemID, submission } = req.body;
 
-    const result = await publishToQueue(submission, "");
+    const { inputs, outputs } = await getProblemInputOutputs(problemID);
+    const testIndex = Math.floor(Math.random() * inputs.length);
+
+    const result = await publishToQueue(submission, inputs[testIndex]);
     if (!result.success) {
       return res.status(500).json({
         err: true,
@@ -114,7 +118,7 @@ router.post("/submission", auth, async (req, res) => {
       });
     }
 
-    const status = "AC";
+    const status = result.res.trim() === outputs[testIndex] ? "AC" : "WA";
     const subID = uuid();
     const resp = await addSubmission(
       subID,

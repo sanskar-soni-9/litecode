@@ -23,7 +23,7 @@ const getProblems = async () => {
 const getProblem = async (id) => {
   try {
     const { rowCount, rows } = await pool.query(
-      `SELECT * FROM PROBLEMS WHERE id=$1`,
+      `SELECT id, title, difficulty, acceptance, description, examplein, exampleout, base_code FROM PROBLEMS WHERE id=$1`,
       [id],
     );
     return rowCount ? { ...rows[0] } : false;
@@ -68,7 +68,7 @@ const validateUserExists = async (email) => {
 const addSubmission = async (subID, userID, problemID, submission, status) => {
   try {
     const { rowCount } = await pool.query(
-      "INSERT INTO submissions(subid, userid, problemid, submission, status) VALUES($1, $2, $3, $4, $5)",
+      "INSERT INTO submissions(id, userid, problemid, submission, status) VALUES($1, $2, $3, $4, $5)",
       [subID, userID, problemID, submission, status],
     );
     return !!rowCount;
@@ -97,6 +97,22 @@ const getSubmissions = async (problemID) => {
   }
 };
 
+const getProblemInputOutputs = async (problemID) => {
+  try {
+    const { rowCount, rows } = await pool.query(
+      "SELECT inputs, outputs FROM problems WHERE id = $1",
+      [problemID],
+    );
+    return rowCount ? rows[0] : { inputs: [], outputs: [] };
+  } catch (err) {
+    console.error(
+      `Error occurred while getting problem inputs and outputs with ID ${problemID}: `,
+      err,
+    );
+    throw err;
+  }
+};
+
 module.exports = {
   getProblems,
   addUser,
@@ -104,4 +120,5 @@ module.exports = {
   getProblem,
   addSubmission,
   getSubmissions,
+  getProblemInputOutputs,
 };
