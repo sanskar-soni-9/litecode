@@ -89,9 +89,14 @@ const ProblemPage = ({ isUser }) => {
           <h4>{problem?.description}</h4>
           <p>Input : {problem.examplein}</p>
           <p>Output : {problem.exampleout}</p>
+          <p className="note">
+            <span>Note: </span>Since its a dummy project the code submission
+            doesn't validates code with multiple test cases but pick a random
+            test case and check with its output.
+          </p>
         </div>
         <div className="code-area">
-          <h1>Code Here</h1>
+          <h1>Write Your Python Code Here:</h1>
           <div className="input-container">
             <textarea
               value={submission}
