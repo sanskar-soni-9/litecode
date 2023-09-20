@@ -85,14 +85,23 @@ const ProblemPage = ({ isUser }) => {
       <div className="problem-input-wrapper">
         <div className="problem-container">
           <h1>{problem?.title}</h1>
+          <div className="note">
+            <span>Note: </span>
+            The Execution server is currently hosted on Azure Kubernetes
+            Service. Due to the high cost of running the cluster, the server
+            will be shut down after some days.
+            <p>
+              <span>Execution Server Status: Active</span>
+            </p>
+          </div>
           <h2>Description</h2>
           <h4>{problem?.description}</h4>
           <p>Input : {problem.examplein}</p>
           <p>Output : {problem.exampleout}</p>
           <p className="note">
             <span>Note: </span>Since its a dummy project the code submission
-            doesn't validates code with multiple test cases but picks up a random
-            test case and check with its output.
+            doesn't validates code with multiple test cases but picks up a
+            random test case and check with its output.
           </p>
         </div>
         <div className="code-area">
