@@ -22,6 +22,9 @@ spec:
       - name: consumer
         image: immortal9/litecode-executor:v1
         imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: my-configmap
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

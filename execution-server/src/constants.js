@@ -1,5 +1,3 @@
-require("dotenv").config();
-
 /** For Production **/
 const queueName = "litecode_submissions";
 const amqpUrl = process.env.LITECODE_MQ;
