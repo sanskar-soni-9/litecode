@@ -11,15 +11,27 @@ import "prismjs/components/prism-python.js";
 const ProblemPage = ({ isUser }) => {
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
-  const [submission, setSubmission] = useState("");
+  const [submission, setSubmission] = useState({
+    value: "",
+    caret: -1,
+    target: null,
+  });
   const [result, setResult] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
   const codeRef = useRef(null);
 
+  const tabSize = 2;
+
   useEffect(() => {
     Prism.highlightAll();
+    if (submission.caret >= 0 && submission.target) {
+      submission.target.setSelectionRange(
+        submission.caret,
+        submission.caret
+      );
+    }
     isUser &&
       !problem &&
       (async () => {
@@ -34,7 +46,7 @@ const ProblemPage = ({ isUser }) => {
         const { problem } = await res.json();
         problem && Prism.highlightAll();
         setProblem(problem);
-        setSubmission(problem.base_code);
+        setSubmission({ ...submission, value: problem.base_code });
       })();
   }, [submission]);
 
@@ -46,7 +58,10 @@ const ProblemPage = ({ isUser }) => {
         "Content-Type": "application/json",
         authorization: localStorage.getItem("token"),
       },
-      body: JSON.stringify({ problemID: problem.id, submission }),
+      body: JSON.stringify({
+        problemID: problem.id,
+        submission: submission.value,
+      }),
     });
     const data = await res.json();
     setIsCorrect(data.status === "AC" ? true : false);
@@ -62,12 +77,14 @@ const ProblemPage = ({ isUser }) => {
   const handleCodeKeyDown = (e) => {
     if (e.key === "Tab") {
       e.preventDefault();
-      const beforeTab = submission.slice(0, e.target.selectionStart);
-      const afterTab = submission.slice(
-        e.target.selectionEnd,
-        submission.length,
-      );
-      setSubmission(beforeTab + "\t" + afterTab);
+
+      const caret = e.target.selectionStart;
+      const newValue =
+        e.target.value.substring(0, caret) +
+        " ".repeat(tabSize) +
+        e.target.value.substring(caret);
+
+      setSubmission({ value: newValue, caret: caret + tabSize, target: e.target });
     }
   };
 
@@ -108,15 +125,17 @@ const ProblemPage = ({ isUser }) => {
           <h1>Write Your Python Code Here:</h1>
           <div className="input-container">
             <textarea
-              value={submission}
-              onChange={(e) => setSubmission(e.target.value)}
+              value={submission.value}
+              onChange={(e) =>
+                setSubmission({ ...submission, value: e.target.value, caret: e.target.selectionStart })
+              }
               spellCheck={false}
               onScroll={handleCodeScroll}
               onKeyDown={handleCodeKeyDown}
               autoFocus
             />
             <pre aria-hidden ref={codeRef}>
-              <code className="language-python">{submission}</code>
+              <code className="language-python">{submission.value}</code>
             </pre>
           </div>
           <button disabled={isSubmitting} onClick={handleSubmit}>
