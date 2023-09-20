@@ -91,7 +91,7 @@ const ProblemPage = ({ isUser }) => {
           <p>Output : {problem.exampleout}</p>
           <p className="note">
             <span>Note: </span>Since its a dummy project the code submission
-            doesn't validates code with multiple test cases but pick a random
+            doesn't validates code with multiple test cases but picks up a random
             test case and check with its output.
           </p>
         </div>
@@ -104,12 +104,15 @@ const ProblemPage = ({ isUser }) => {
               spellCheck={false}
               onScroll={handleCodeScroll}
               onKeyDown={handleCodeKeyDown}
+              autoFocus
             />
-            <pre aria-hidden={true} ref={codeRef}>
+            <pre aria-hidden ref={codeRef}>
               <code className="language-python">{submission}</code>
             </pre>
           </div>
-          <button onClick={handleSubmit}>Submit</button>
+          <button disabled={isSubmitting} onClick={handleSubmit}>
+            Submit
+          </button>
           <div className={`result-container ${isCorrect && "correct"}`}>
             {isSubmitting ? (
               <div className="submitting-spinner-container">
