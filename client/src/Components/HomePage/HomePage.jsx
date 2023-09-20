@@ -1,7 +1,11 @@
-const HomePage = () => {
-  return (
-    <div>HomePage</div>
-  )
-}
+import { useEffect } from "react";
 
-export default HomePage
+const HomePage = () => {
+  useEffect(() => {
+    window.location.href = "/problemset/all";
+  });
+
+  return <main></main>;
+};
+
+export default HomePage;
