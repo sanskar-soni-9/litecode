@@ -2,6 +2,8 @@ Execution Server Status: Active
 
 Note: The Execution server is currently hosted on Azure Kubernetes Service. Due to the high cost of running the cluster, the server will be shut down after some days.
 
+![LiteCode GIF](/litecode.gif)
+
 # Litecode Project
 
 Welcome to Litecode, a working demo of a coding platform similar to LeetCode. Litecode provides user authentication, code submission, and execution features, with a unique architecture involving Kubernetes and RabbitMQ.
