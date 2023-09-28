@@ -1,4 +1,4 @@
-Execution Server Status: Active
+Execution Server Status: Inactive
 
 Note: The Execution server is currently hosted on Azure Kubernetes Service. Due to the high cost of running the cluster, the server will be shut down after some days.
 

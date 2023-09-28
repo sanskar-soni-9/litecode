@@ -108,7 +108,7 @@ const ProblemPage = ({ isUser }) => {
             Service. Due to the high cost of running the cluster, the server
             will be shut down after some days.
             <p>
-              <span>Execution Server Status: Active</span>
+              <span>Execution Server Status: Inactive</span>
             </p>
           </div>
           <h2>Description</h2>
