@@ -6,7 +6,7 @@ Note: The Execution server is currently hosted on Azure Kubernetes Service. Due 
 
 # Litecode Project
 
-Welcome to Litecode, a working demo of a coding platform similar to LeetCode. Litecode provides user authentication, code submission, and execution features, with a unique architecture involving Kubernetes and RabbitMQ.
+Welcome to Litecode, a working demo of a coding platform LeetCode. LiteCode provides user authentication, code submission, and execution features, with a unique architecture involving Kubernetes and RabbitMQ.
 
 ## Project Overview
 
@@ -24,17 +24,15 @@ Litecode's workflow:
 
 1. User submits code via the Client, triggering a POST request to the Main Server.
 
-2. The Main Server sends the code to a RabbitMQ queue attached with a callback queue for result.
+2. The Main Server attaches a unique callback queue with the user's code and sends it to a RabbitMQ queue, and starts consuming the callback queue for the result.
 
 3. The Execution Server, within the Kubernetes cluster, consumes messages from the queue.
 
-4. It creates Kubernetes pods to execute the code and captures the execution results.
+4. It creates Kubernetes pod wuith python:3 image to execute the code and captures the execution results.
 
-5. Results are sent back to the Main Server via a callback queue.
+5. Results are sent back to the Main Server via the callback queue and pod gets deleted.
 
-6. The Main Server responds to the user's POST request with the code execution results.
-
-7. The Execution Server deletes the pods created for the execution.
+6. The Main Server gets the result of the execution, deletes the callback queue and responds to the user's POST request with the results.
 
 ## Technologies Used
 
@@ -47,3 +45,4 @@ Litecode's workflow:
 ## Contact
 
 If you have any questions, suggestions or if you have found any bugs, feel free to contact me.
+[Discord](https://discordapp.com/users/516889806677213185)
